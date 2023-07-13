@@ -1,0 +1,31 @@
+name: .NET Checkout Install Dependencies
+description: Action to checkout a .NET project and install dependencies
+inputs:
+  dotnet:
+    description: .NET version
+    required: false
+    default: "6"
+  framework:
+    description: Is .NET framework?
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      if: ${{ inputs.framework == 'false' }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '${{ inputs.dotnet }}'
+
+    - name: Restore NuGet packages
+      run: |
+        if [ "${{ inputs.framework }}" = "true" ]; then
+          nuget restore
+        else
+          dotnet nuget restore
+        fi
+      shell: bash
